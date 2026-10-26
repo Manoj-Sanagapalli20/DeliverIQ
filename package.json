@@ -1,0 +1,25 @@
+{
+  "name": "deliveriq",
+  "version": "1.0.0",
+  "description": "Intelligent Email Deliverability & Verification Engine",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "keywords": [
+    "email-verification",
+    "deliverability",
+    "smtp",
+    "mx-lookup",
+    "spf",
+    "dmarc"
+  ],
+  "author": "Manoj Sanagapalli",
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^18.0.9",
+    "express": "^4.19.2"
+  }
+}

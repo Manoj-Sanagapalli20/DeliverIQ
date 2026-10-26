@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DeliverIQ — Intelligent Email Deliverability & Verification Engine</title>
+  <meta name="description" content="High-performance email deliverability and verification tool. Evaluates email lists for deliverability, bounce likelihood, and unknown status with zero messages sent.">
+  
+  <!-- Modern Next-Gen Typography (Outfit + Space Grotesk + Fira Code) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Outfit:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Ambient background lighting -->
+  <div class="ambient-glow glow-primary"></div>
+  <div class="ambient-glow glow-secondary"></div>
+
+  <!-- Header Section -->
+  <header class="app-header">
+    <div class="header-container">
+      <div class="brand">
+        <div class="brand-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            <path d="m9 12 2 2 4-4"/>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <div class="brand-title-row">
+            <span class="brand-name">DeliverIQ</span>
+            <span class="badge-version">v1.2</span>
+          </div>
+          <span class="brand-tagline">Intelligent Email Deliverability Engine</span>
+        </div>
+      </div>
+
+      <div class="header-right">
+        <!-- Feature Pills -->
+        <div class="pill-badge pill-safe">
+          <span class="pulse-dot"></span>
+          <span>Zero Emails Sent</span>
+        </div>
+        <div class="pill-badge pill-cloud">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/>
+          </svg>
+          <span>Port 25 Resilient</span>
+        </div>
+
+        <!-- Light / Dark Theme Toggle Button -->
+        <button id="themeToggleBtn" class="theme-toggle-btn" type="button" aria-label="Toggle Light/Dark Theme" title="Toggle Theme (Dark / Light)">
+          <div class="theme-icon-container">
+            <!-- Moon Icon (Dark Mode) -->
+            <svg class="theme-icon icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>
+            </svg>
+            <!-- Sun Icon (Light Mode) -->
+            <svg class="theme-icon icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="4"/>
+              <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>
+            </svg>
+          </div>
+          <span id="themeToggleLabel" class="theme-label">Dark</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Workspace -->
+  <main class="main-container">
+    
+    <!-- Hero Header -->
+    <section class="hero-section">
+      <div class="hero-badge">
+        <span class="hero-sparkle">✨</span>
+        <span>RFC 5321 & 5322 Compliant Email Diagnostics</span>
+      </div>
+      <h1 class="hero-title">Verify Deliverability with <span class="gradient-text">Pinpoint Precision</span></h1>
+      <p class="hero-desc">
+        Batch check email addresses across syntax, disposable burner filters, DNS MX records, and mail exchanger availability without sending a single spam message.
+      </p>
+    </section>
+
+    <!-- Verification Input Card -->
+    <section class="card input-card">
+      <div class="card-header">
+        <!-- Input Method Tabs -->
+        <div class="input-tabs">
+          <button id="tabPasteBtn" class="tab-btn active" type="button">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
+              <rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>
+            </svg>
+            <span>Paste Emails</span>
+          </button>
+          <button id="tabUploadBtn" class="tab-btn" type="button">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="17 8 12 3 7 8"/>
+              <line x1="12" y1="3" x2="12" y2="15"/>
+            </svg>
+            <span>Upload CSV / TXT</span>
+          </button>
+        </div>
+
+        <!-- Utility Buttons -->
+        <div class="quick-actions">
+          <button id="sampleDataBtn" class="btn btn-secondary btn-sm" type="button" title="Load realistic test scenarios">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="16" y1="13" x2="8" y2="13"/>
+              <line x1="16" y1="17" x2="8" y2="17"/>
+            </svg>
+            <span>Load Sample Data</span>
+          </button>
+          <button id="clearInputBtn" class="btn btn-ghost btn-sm" type="button" title="Clear input">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="3 6 5 6 21 6"/>
+              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+            </svg>
+            <span>Clear</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Tab 1: Textarea Paste -->
+      <div id="pasteTabContent" class="tab-pane active">
+        <div class="textarea-wrapper">
+          <textarea id="emailInput" rows="6" placeholder="Paste single or multiple email addresses here (one per line, comma, or space separated)...&#10;&#10;e.g.&#10;user@example.com&#10;contact@company.org&#10;sales@business.io"></textarea>
+          <div class="textarea-footer">
+            <div class="detected-badge">
+              <span class="detected-icon">⚡</span>
+              <span id="detectedCount">0 addresses detected</span>
+            </div>
+            <span class="textarea-hint">Automatically parses newlines, commas, and semicolons</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 2: Drag & Drop CSV / TXT Upload -->
+      <div id="uploadTabContent" class="tab-pane">
+        <div id="dropZone" class="drop-zone">
+          <input type="file" id="fileInput" accept=".csv,.txt" class="file-input-hidden">
+          <div class="drop-zone-content">
+            <div class="upload-icon-circle">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="17 8 12 3 7 8"/>
+                <line x1="12" y1="3" x2="12" y2="15"/>
+              </svg>
+            </div>
+            <h3 class="upload-title">Drag & drop your CSV or TXT list</h3>
+            <p class="upload-desc">Or <span class="browse-link">browse files</span> from your computer</p>
+            <span class="upload-meta">Auto-detects "email", "address", or raw column structures</span>
+          </div>
+
+          <!-- File Uploaded Feedback -->
+          <div id="filePreview" class="file-preview hidden">
+            <div class="file-info-row">
+              <div class="file-icon-box">📄</div>
+              <div class="file-meta">
+                <span id="fileName" class="file-name">list.csv</span>
+                <span id="fileSize" class="file-size">0 KB</span>
+              </div>
+              <button id="removeFileBtn" class="btn btn-ghost btn-xs" type="button">✕ Remove</button>
+            </div>
+            <div id="fileStats" class="file-stats-badge">Parsed 0 emails ready for verification</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card Action Footer -->
+      <div class="card-footer">
+        <div class="engine-features-list">
+          <span class="feature-chip">5-Gate Inspection</span>
+          <span class="feature-chip">Catch-All Trap</span>
+          <span class="feature-chip">DNS MX & SPF/DMARC</span>
+        </div>
+
+        <button id="verifyBtn" class="btn btn-primary btn-lg" type="button">
+          <svg class="verify-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+          </svg>
+          <span id="verifyBtnText">Verify Emails</span>
+          <span id="verifyBtnCount" class="btn-count-pill hidden">0</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- Real-Time Progress Bar Section -->
+    <section id="progressSection" class="progress-section hidden">
+      <div class="progress-header">
+        <div class="progress-title-wrapper">
+          <span class="spinner"></span>
+          <span id="progressLabel" class="progress-label">Evaluating email list...</span>
+        </div>
+        <div class="progress-stats">
+          <span id="progressCount">0 / 0</span>
+          <span id="progressPercent" class="progress-percent">0%</span>
+        </div>
+      </div>
+      <div class="progress-bar-container">
+        <div id="progressBar" class="progress-bar" style="width: 0%"></div>
+      </div>
+      <div class="progress-detail-row">
+        <span id="currentCheckingEmail" class="checking-email-text">Initializing worker pool...</span>
+        <span id="elapsedTimer" class="timer-text">Elapsed: 0.0s</span>
+      </div>
+    </section>
+
+    <!-- Transparent Educational Banner -->
+    <section class="notice-banner">
+      <div class="notice-icon-box">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="8" x2="12" y2="12"/>
+          <line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+      </div>
+      <div class="notice-content">
+        <strong class="notice-title">Why "Unknown" is an authentic, expected result:</strong>
+        <p class="notice-text">
+          Many enterprise mail servers enforce Catch-All configurations or Greylisting to prevent address harvesting. Additionally, cloud hosting providers (Render, Railway, AWS) restrict outbound Port 25. DeliverIQ verifies domains, MX servers, and anti-spoofing security records via universal DNS Port 53, responsibly returning <strong>Unknown (High Confidence)</strong> rather than an unsubstantiated bounce.
+        </p>
+      </div>
+    </section>
+
+    <!-- KPI Summary Dashboard -->
+    <section id="kpiSection" class="kpi-grid">
+      <div class="kpi-card kpi-total">
+        <div class="kpi-header">
+          <span class="kpi-title">Total Evaluated</span>
+          <span class="kpi-icon-pill">📊</span>
+        </div>
+        <div class="kpi-value-row">
+          <span id="kpiTotal" class="kpi-num">0</span>
+          <span class="kpi-sub">Addresses</span>
+        </div>
+        <div class="kpi-footer">Parallel batch queue</div>
+      </div>
+
+      <div class="kpi-card kpi-deliverable">
+        <div class="kpi-header">
+          <span class="kpi-title">Likely Deliverable</span>
+          <span class="kpi-icon-pill icon-deliverable">🟢</span>
+        </div>
+        <div class="kpi-value-row">
+          <span id="kpiDeliverable" class="kpi-num">0</span>
+          <span id="kpiDeliverablePct" class="kpi-sub">0%</span>
+        </div>
+        <div class="kpi-footer">Active mailbox confirmed</div>
+      </div>
+
+      <div class="kpi-card kpi-bounce">
+        <div class="kpi-header">
+          <span class="kpi-title">Likely to Bounce</span>
+          <span class="kpi-icon-pill icon-bounce">🔴</span>
+        </div>
+        <div class="kpi-value-row">
+          <span id="kpiBounce" class="kpi-num">0</span>
+          <span id="kpiBouncePct" class="kpi-sub">0%</span>
+        </div>
+        <div class="kpi-footer">Syntax, dead MX, or rejected</div>
+      </div>
+
+      <div class="kpi-card kpi-unknown">
+        <div class="kpi-header">
+          <span class="kpi-title">Unknown Status</span>
+          <span class="kpi-icon-pill icon-unknown">🟡</span>
+        </div>
+        <div class="kpi-value-row">
+          <span id="kpiUnknown" class="kpi-num">0</span>
+          <span id="kpiUnknownPct" class="kpi-sub">0%</span>
+        </div>
+        <div class="kpi-footer">Catch-all, greylist, or timeout</div>
+      </div>
+
+      <div class="kpi-card kpi-score">
+        <div class="kpi-header">
+          <span class="kpi-title">Deliverability Index</span>
+          <span class="kpi-icon-pill icon-score">🎯</span>
+        </div>
+        <div class="kpi-value-row">
+          <span id="kpiAvgScore" class="kpi-num">0%</span>
+          <span id="kpiRiskTier" class="kpi-sub">N/A</span>
+        </div>
+        <div class="kpi-footer">Heuristic confidence score</div>
+      </div>
+    </section>
+
+    <!-- Results Table Card -->
+    <section class="card results-card">
+      <div class="results-toolbar">
+        <!-- Filter Tabs -->
+        <div class="filter-tabs">
+          <button class="filter-pill active" data-filter="ALL" type="button">
+            All <span id="badgeCountAll" class="count-bubble">0</span>
+          </button>
+          <button class="filter-pill pill-filter-deliverable" data-filter="DELIVERABLE" type="button">
+            <span class="dot-deliverable"></span> Deliverable <span id="badgeCountDeliverable" class="count-bubble">0</span>
+          </button>
+          <button class="filter-pill pill-filter-bounce" data-filter="BOUNCE" type="button">
+            <span class="dot-bounce"></span> Bounce <span id="badgeCountBounce" class="count-bubble">0</span>
+          </button>
+          <button class="filter-pill pill-filter-unknown" data-filter="UNKNOWN" type="button">
+            <span class="dot-unknown"></span> Unknown <span id="badgeCountUnknown" class="count-bubble">0</span>
+          </button>
+        </div>
+
+        <!-- Search & Export Actions -->
+        <div class="toolbar-actions">
+          <div class="search-input-wrapper">
+            <svg class="search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <circle cx="11" cy="11" r="8"/>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            <input type="text" id="tableSearchInput" placeholder="Filter by email or domain...">
+          </div>
+
+          <button id="exportCsvBtn" class="btn btn-secondary btn-sm" type="button" disabled>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="7 10 12 15 17 10"/>
+              <line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+            <span>Export CSV</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Results Table -->
+      <div class="table-responsive">
+        <table class="results-table" id="resultsTable">
+          <thead>
+            <tr>
+              <th style="width: 50px;">#</th>
+              <th>Email Address</th>
+              <th>Status</th>
+              <th>Deliverability Score</th>
+              <th>MX Provider</th>
+              <th>Diagnosis / Rationale</th>
+              <th style="text-align: right;">Action</th>
+            </tr>
+          </thead>
+          <tbody id="resultsTableBody">
+            <!-- Default Empty State -->
+            <tr class="empty-row" id="emptyStateRow">
+              <td colspan="7">
+                <div class="empty-state">
+                  <div class="empty-icon-box">📬</div>
+                  <h3 class="empty-heading">No Email Addresses Evaluated Yet</h3>
+                  <p class="empty-description">
+                    Paste email addresses in the box above or click <strong>"Load Sample Data"</strong> to run an instant verification demo.
+                  </p>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="table-footer">
+        <span id="tableResultsCount">Showing 0 results</span>
+        <span class="table-hint">💡 Click any row or "Inspect" to view underlying DNS, MX, SPF, DMARC, and transcript logs</span>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Deep Diagnostic Inspector Modal -->
+  <div id="inspectorModal" class="modal-backdrop hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title-row">
+          <div class="modal-icon-badge">🔍</div>
+          <div>
+            <h2 id="modalEmail" class="modal-title">email@domain.com</h2>
+            <div id="modalStatusBadge" class="status-badge status-deliverable">Likely to be delivered</div>
+          </div>
+        </div>
+        <button id="closeModalBtn" class="btn-close" type="button" aria-label="Close modal">✕</button>
+      </div>
+
+      <div class="modal-body">
+        
+        <!-- Multi-Gate Status Grid -->
+        <div class="modal-grid">
+          <div class="modal-card-item">
+            <span class="attr-label">RFC 5322 Syntax</span>
+            <span id="modalSyntax" class="attr-value">✅ Valid</span>
+          </div>
+          <div class="modal-card-item">
+            <span class="attr-label">Disposable / Burner</span>
+            <span id="modalDisposable" class="attr-value">✅ Clean</span>
+          </div>
+          <div class="modal-card-item">
+            <span class="attr-label">Deliverability Index</span>
+            <span id="modalScore" class="attr-value font-mono">95% (High)</span>
+          </div>
+          <div class="modal-card-item">
+            <span class="attr-label">Catch-All Detected</span>
+            <span id="modalCatchAll" class="attr-value">❌ No</span>
+          </div>
+          <div class="modal-card-item">
+            <span class="attr-label">SPF Security Record</span>
+            <span id="modalSpf" class="attr-value">✅ Protected</span>
+          </div>
+          <div class="modal-card-item">
+            <span class="attr-label">DMARC Authentication</span>
+            <span id="modalDmarc" class="attr-value">✅ Configured</span>
+          </div>
+        </div>
+
+        <!-- MX Records Section -->
+        <div class="modal-section">
+          <h4 class="section-heading">Mail Exchanger (MX) Records</h4>
+          <div id="modalMxList" class="mx-list">
+            <span class="mx-pill">aspmx.l.google.com (Priority 1)</span>
+          </div>
+        </div>
+
+        <!-- Diagnostic Transcript Section -->
+        <div class="modal-section">
+          <h4 class="section-heading">Diagnostic Transcript & Handshake Protocol Log</h4>
+          <pre id="modalTranscript" class="terminal-log">Connecting to mail exchanger on Port 25...</pre>
+        </div>
+
+      </div>
+
+      <div class="modal-footer">
+        <button id="modalDoneBtn" class="btn btn-secondary btn-sm" type="button">Close Inspector</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Application Footer -->
+  <footer class="app-footer">
+    <div class="footer-container">
+      <div class="footer-brand-col">
+        <span>🛡️ <strong>DeliverIQ</strong> — Enterprise Email Verification & Deliverability Engine</span>
+        <span class="footer-sub">Privacy-First Architecture • RFC 5321 & 5322 Certified</span>
+      </div>
+      <div class="footer-meta">
+        <span>Designed & Built with ❤️ by <strong>Manoj Sanagapalli</strong></span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
