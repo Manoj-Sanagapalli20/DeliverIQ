@@ -259,24 +259,26 @@ async function verifyEmail(rawEmail) {
           result.status = 'Unknown';
           result.isCatchAll = true;
           result.score = 70;
-          result.reason = 'Catch-All domain detected via enterprise relay cluster.';
+          result.reason = 'Catch-All domain detected via fallback relay (Host Port 25 restricted).';
           return result;
         }
 
         if (deliverability === 'deliverable') {
           result.status = 'Likely to be delivered';
           result.score = qualityScore || 95;
-          result.reason = 'Mailbox verified via unblocked enterprise relay cluster.';
+          result.reason = 'Mailbox exists & active. Verified via fallback relay (Host Port 25 restricted).';
           return result;
         } else if (deliverability === 'undeliverable') {
           result.status = 'Likely to bounce';
           result.score = 0;
-          result.reason = statusDetail ? `Mailbox does not exist (${statusDetail}) via enterprise relay.` : 'Mailbox rejected via enterprise relay cluster.';
+          result.reason = statusDetail
+            ? `Mailbox does not exist (${statusDetail}). Verified via fallback relay due to host Port 25 restriction.`
+            : 'Mailbox does not exist. Verified via fallback relay due to host Port 25 restriction.';
           return result;
         } else if (deliverability === 'risky' || deliverability === 'unknown') {
           result.status = 'Unknown';
           result.score = qualityScore || 65;
-          result.reason = 'Enterprise relay classified mailbox state as risky or unknown.';
+          result.reason = 'Mailbox status unconfirmed / risky via fallback relay (Host Port 25 restricted).';
           return result;
         }
       } else if (abstractRes) {
@@ -297,7 +299,7 @@ async function verifyEmail(rawEmail) {
         result.status = 'Likely to bounce';
         result.disposable = true;
         result.score = 10;
-        result.reason = 'Disposable burner email identified via external verification relay';
+        result.reason = 'Disposable burner email identified via fallback relay (Host Port 25 restricted).';
         return result;
       }
     }
