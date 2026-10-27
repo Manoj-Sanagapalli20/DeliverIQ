@@ -68,20 +68,20 @@ async function verifyEmail(rawEmail) {
 
   // --- GATE 1: Syntax Validation (RFC 5322 & Length Constraints) ---
   const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/;
-  if (!result.email || !emailRegex.test(result.email) || result.email.length > 254) {
+  if (!result.email || !emailRegex.test(result.email) || result.email.length > 254 || result.email.includes('..')) {
     result.status = 'Likely to bounce';
     result.score = 0;
     result.reason = 'Invalid email syntax (violates RFC 5322 formatting standards)';
-    result.transcript.push('[GATE 1] Syntax Check: FAILED. Malformed structure or illegal characters.');
+    result.transcript.push('[GATE 1] Syntax Check: FAILED. Malformed structure, consecutive dots, or illegal characters.');
     return result;
   }
 
   const [localPart, domain] = result.email.split('@');
-  if (localPart.length > 64) {
+  if (!localPart || localPart.length > 64 || localPart.startsWith('.') || localPart.endsWith('.')) {
     result.status = 'Likely to bounce';
     result.score = 0;
-    result.reason = 'Local part exceeds RFC 5321 limit of 64 characters';
-    result.transcript.push('[GATE 1] Syntax Check: FAILED. Username part exceeds 64 chars.');
+    result.reason = 'Local part violates RFC 5321 boundary or 64-character limit';
+    result.transcript.push('[GATE 1] Syntax Check: FAILED. Username part has invalid boundary or exceeds 64 chars.');
     return result;
   }
 
@@ -208,8 +208,19 @@ async function verifyEmail(rawEmail) {
     return result;
   }
 
-  // Definite Bounces (550, 551, 553 User Not Found)
-  if (smtpProbe && (smtpProbe.code === 550 || smtpProbe.code === 551 || smtpProbe.code === 553)) {
+  // Definite Bounces or Remote Server Security Blocks (550, 551, 553, 554)
+  if (smtpProbe && (smtpProbe.code === 550 || smtpProbe.code === 551 || smtpProbe.code === 553 || smtpProbe.code === 554)) {
+    const rawLower = (smtpProbe.raw || '').toLowerCase();
+    const isPolicyBlocked = rawLower.includes('block') || rawLower.includes('denied') || rawLower.includes('blacklist') || rawLower.includes('spamhaus') || rawLower.includes('reputation') || rawLower.includes('policy') || rawLower.includes('service unavailable');
+    
+    if (isPolicyBlocked) {
+      result.status = 'Unknown';
+      result.score = 60;
+      result.reason = `Probe blocked by remote server anti-abuse / IP reputation policy (${smtpProbe.raw}). Host Port 25 restricted.`;
+      result.transcript.push(`[GATE 5] Outcome: 🟡 UNKNOWN. Probe blocked by remote mail server policy: ${smtpProbe.raw}`);
+      return result;
+    }
+
     result.status = 'Likely to bounce';
     result.score = 0;
     result.reason = `Mailbox does not exist (Remote server responded: ${smtpProbe.raw || '550 Recipient rejected'})`;
@@ -221,7 +232,7 @@ async function verifyEmail(rawEmail) {
   if (smtpProbe && smtpProbe.code >= 400 && smtpProbe.code <= 499) {
     result.status = 'Unknown';
     result.score = 65;
-    result.reason = `Server deferred verification probe (Greylisting / rate-limiting code ${smtpProbe.code} active).`;
+    result.reason = `Server deferred verification probe (Greylisting / rate-limiting code ${smtpProbe.code} active). Direct probe restricted.`;
     result.transcript.push(`[GATE 4] Greylisting Defenses Encountered: ${smtpProbe.raw || '4xx Temporary deferral'}`);
     return result;
   }
@@ -319,7 +330,7 @@ async function verifyEmail(rawEmail) {
 
   result.score = Math.min(Math.max(score, 10), 95);
   result.status = 'Unknown';
-  result.reason = `Domain & MX verified (${isTier1 ? 'Tier-1 Provider' : 'Active MX'}). Direct mailbox probe timed out due to host Port 25 restriction.`;
+  result.reason = `Domain & MX verified (${isTier1 ? 'Tier-1 Provider' : 'Active MX'}). Host outbound Port 25 blocked by network/cloud firewall; direct mailbox probe timed out.`;
   result.transcript.push(`[GATE 5c] Final Outcome: 🟡 UNKNOWN. Deliverability Confidence Score: ${result.score}%.`);
 
   return result;

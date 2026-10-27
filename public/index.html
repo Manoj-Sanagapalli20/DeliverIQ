@@ -337,13 +337,13 @@
         <table class="results-table" id="resultsTable">
           <thead>
             <tr>
-              <th style="width: 50px;">#</th>
-              <th>Email Address</th>
-              <th>Status</th>
-              <th>Deliverability Score</th>
-              <th>MX Provider</th>
-              <th>Diagnosis / Rationale</th>
-              <th style="text-align: right;">Action</th>
+              <th class="col-num">#</th>
+              <th class="col-email">Email Address</th>
+              <th class="col-status">Status</th>
+              <th class="col-score">Deliverability Score</th>
+              <th class="col-mx">MX Provider</th>
+              <th class="col-reason">Diagnosis / Rationale</th>
+              <th class="col-action">Action</th>
             </tr>
           </thead>
           <tbody id="resultsTableBody">
@@ -415,6 +415,12 @@
           </div>
         </div>
 
+        <!-- Diagnostic Reason Section -->
+        <div class="modal-section">
+          <h4 class="section-heading">Diagnostic Assessment & Reason</h4>
+          <div id="modalReason" class="diagnostic-reason-callout">Evaluating...</div>
+        </div>
+
         <!-- MX Records Section -->
         <div class="modal-section">
           <h4 class="section-heading">Mail Exchanger (MX) Records</h4>
@@ -433,6 +439,79 @@
 
       <div class="modal-footer">
         <button id="modalDoneBtn" class="btn btn-secondary btn-sm" type="button">Close Inspector</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Export CSV Preview Modal -->
+  <div id="exportModal" class="modal-backdrop hidden">
+    <div class="modal-card modal-export-card">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <span class="modal-icon">📊</span>
+          <div>
+            <h3 class="modal-title">Export Verified Results to CSV</h3>
+            <p class="modal-subtitle">Review the exported data, confidence scores, and diagnostic reasons before downloading</p>
+          </div>
+        </div>
+        <button id="closeExportModalBtn" class="modal-close-btn" type="button" aria-label="Close modal">&times;</button>
+      </div>
+
+      <div class="modal-body export-modal-body">
+        <div class="export-stats-row">
+          <span class="export-stat-badge">Total: <strong id="exportTotalCount">0</strong></span>
+          <span class="export-stat-badge deliverable">🟢 Deliverable: <strong id="exportDeliverableCount">0</strong></span>
+          <span class="export-stat-badge bounce">🔴 Bounce: <strong id="exportBounceCount">0</strong></span>
+          <span class="export-stat-badge unknown">🟡 Unknown: <strong id="exportUnknownCount">0</strong></span>
+        </div>
+
+        <div class="export-preview-box">
+          <div class="export-preview-header">
+            <div class="export-preview-tabs">
+              <button id="exportViewTableBtn" class="export-tab-btn active" type="button">📊 Table Spreadsheet View</button>
+              <button id="exportViewRawBtn" class="export-tab-btn" type="button">📄 Raw CSV Format</button>
+            </div>
+            <button id="copyCsvBtn" class="btn btn-secondary btn-xs" type="button">📋 Copy CSV Content</button>
+          </div>
+
+          <!-- Table Spreadsheet Preview (Default View) -->
+          <div id="exportTableContainer" class="export-table-wrapper">
+            <table class="export-preview-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Email Address</th>
+                  <th>Status</th>
+                  <th>Score</th>
+                  <th>Primary Reason</th>
+                  <th>Primary MX</th>
+                  <th>SPF</th>
+                  <th>DMARC</th>
+                  <th>Disposable</th>
+                  <th>Timestamp</th>
+                </tr>
+              </thead>
+              <tbody id="exportTablePreviewBody">
+                <!-- Dynamically populated rows -->
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Raw CSV Code Preview (Toggleable) -->
+          <pre id="exportCsvPreview" class="export-code-preview hidden"></pre>
+        </div>
+      </div>
+
+      <div class="modal-footer export-modal-footer">
+        <button id="cancelExportBtn" class="btn btn-secondary btn-sm" type="button">Cancel</button>
+        <button id="confirmDownloadCsvBtn" class="btn btn-primary btn-sm" type="button">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          <span>Download .CSV File</span>
+        </button>
       </div>
     </div>
   </div>

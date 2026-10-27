@@ -7,11 +7,19 @@
 [![License](https://img.shields.io/badge/License-MIT-purple.svg)](LICENSE)
 [![Deployment](https://img.shields.io/badge/Deploy-Render-success.svg)](https://render.com/)
 
+
+## 📄 Submission Details
+- **Project Name**: DeliverIQ
+- **Live Deployed Link**: [https://deliveriq-8xoa.onrender.com/](https://deliveriq-8xoa.onrender.com/)
+- **GitHub Repository**: [https://github.com/Manoj-Sanagapalli20/DeliverIQ](https://github.com/Manoj-Sanagapalli20/DeliverIQ)
+- **Author / Developer**: **Manoj Sanagapalli**
+
 ---
 
 ## 📌 Table of Contents
+- [📄 Submission Details](#-submission-details)
 1. [Project Overview](#1-project-overview)
-2. [Task Requirements & Strict Compliance](#2-task-requirements--strict-compliance)
+2. [Requirements & How DeliverIQ Fulfills Them](#2-requirements--how-deliveriq-fulfills-them)
 3. [Complete System Architecture](#3-complete-system-architecture)
    - [Visual A: High-Level Decision Flowchart](#visual-a-high-level-decision-flowchart)
    - [Visual B: Component & Data Pipeline](#visual-b-component--data-pipeline)
@@ -25,8 +33,7 @@
    - [Our Strategic Solutions: Disify API, Abstract API & DNS Heuristics](#our-strategic-solutions)
 7. [User Interface & Key Features](#7-user-interface--key-features)
 8. [Local Development & Setup Guide](#8-local-development--setup-guide)
-9. [Deployment Guide (Render / Railway)](#9-deployment-guide-render--railway)
-10. [API Reference](#10-api-reference)
+9. [API Reference](#9-api-reference)
 
 ---
 
@@ -43,11 +50,11 @@ Each address is evaluated across multiple criteria and classified into one of th
 
 ---
 
-## 2. Task Requirements & Strict Compliance
+## 2. Requirements & How DeliverIQ Fulfills Them
 
-DeliverIQ was engineered in strict alignment with the software engineering internship assignment specifications:
+DeliverIQ was engineered to satisfy all core deliverability specifications:
 
-| Requirement from Specification | How DeliverIQ Fulfills It |
+| Requirement | How DeliverIQ Fulfills It |
 | :--- | :--- |
 | **"Reports whether each one is likely to be delivered, likely to bounce, or unknown"** | Core classification engine outputs strictly into these 3 categories with badges and clear diagnostic rationale. |
 | **"A user should be able to paste a list of addresses and see a result for each one"** | Clean UI supports pasting multiple lines, comma-separated values, or bulk CSV uploads, rendering individual results. |
@@ -232,10 +239,7 @@ DeliverIQ executes a sequential, 5-stage verification pipeline for every email a
 
 ### Why "Unknown" Happens
 
-The assignment states:
-> *"Many mail servers will not confirm whether a mailbox exists, so 'unknown' is a valid result and should be handled clearly."*
-
-In the real world, receiving an **"Unknown"** classification is not an error in the application. It is the result of three deliberate security and network designs:
+Many mail servers will not disclose whether an individual recipient mailbox exists, so **"Unknown"** is a valid and expected result. In the real world, receiving an **"Unknown"** classification is not an error in the application—it is the result of three deliberate security and network designs:
 
 #### Reason 1: Catch-All (Accept-All) Mail Servers
 - Many corporate domains configure their mail servers to reply `250 OK` to **every single email address**, even fake names like `definitely_fake_user_12345@company.com`.
@@ -256,8 +260,7 @@ In the real world, receiving an **"Unknown"** classification is not an error in 
 
 ## 6. The Cloud Hosting Port 25 Limitation & Our Multi-Signal Solution
 
-The assignment specifically requires:
-> *"Some hosting providers block connections to mail servers; if yours does, explain in your README what the deployed version can and cannot check."*
+Hosting providers frequently restrict direct connections to remote mail servers. The breakdown below details why this occurs and what the deployed engine can and cannot evaluate:
 
 ### Why Free Cloud Hosts Block Port 25
 Outbound TCP connections on **Port 25 (Simple Mail Transfer Protocol)** are blocked by default on almost all major cloud hosting platforms (Render, Railway, AWS EC2, DigitalOcean, Vercel) and consumer residential ISPs.
@@ -305,12 +308,16 @@ Rather than failing or returning a blank response on Port 25 timeouts, DeliverIQ
 #### 1. Disify API (Default Built-In Relay — Zero Key Required)
 - **Why we chose Disify**: Completely free, requires zero registration, zero credit card, and zero API keys. It runs instantly out-of-the-box on Render, providing domain validity, disposable verification, DNS routing, and role-account metadata in under 200ms.
 
-#### 2. Abstract API (Optional Pro Mailbox Relay)
-- **Why we chose Abstract API**: Abstract API operates dedicated enterprise bare-metal servers where **Port 25 is unblocked** and registered with reverse DNS (PTR records).
-- DeliverIQ supports an optional `ABSTRACT_API_KEY` environment variable. If supplied, DeliverIQ can route cloud queries through Abstract API to confirm mailbox-level existence even on Render.
+#### 2. Abstract API (Enterprise Email Reputation Relay)
+- **Why we chose Abstract API**: Abstract API operates dedicated enterprise bare-metal infrastructure where **Port 25 is unblocked** and registered with clean reverse DNS (PTR records).
+- DeliverIQ queries Abstract's **Email Reputation API** (`https://emailreputation.abstractapi.com/v1/`) via an optional `ABSTRACT_API_KEY` environment variable.
+- When outbound Port 25 is blocked by a cloud host (like Render) or a local residential ISP, this relay automatically evaluates recipient mailbox existence (`DELIVERABLE` vs. `UNDELIVERABLE`), quality score, and disposable status.
+- **Transparent Diagnosis**: When an address is verified via this layer, DeliverIQ explicitly logs:
+  - *`Mailbox does not exist (invalid_mailbox). Verified via fallback relay due to host Port 25 restriction.`* (for bounces)
+  - *`Mailbox exists & active. Verified via fallback relay (Host Port 25 restricted).`* (for deliverable addresses)
 
 #### 3. Deep DNS Deliverability Scoring (0 - 100%)
-- When Port 25 is blocked, DeliverIQ evaluates all available DNS signals (MX tier, SPF, DMARC, TLD validity) to compute a probabilistic **Deliverability Confidence Score**, giving users actionable insight.
+- When Port 25 is blocked and no external relay responds, DeliverIQ evaluates all available DNS signals (MX tier, SPF, DMARC, TLD validity) to compute a probabilistic **Deliverability Confidence Score**, giving users actionable insight.
 
 ---
 
@@ -319,15 +326,16 @@ Rather than failing or returning a blank response on Port 25 timeouts, DeliverIQ
 DeliverIQ features a modern, responsive web interface built for speed and clarity:
 
 - **Dual Input Modes**:
-  - **Text Paste Tab**: Paste 1 or 500 emails (supports newlines, commas, spaces).
+  - **Text Paste Tab**: Paste 1 or 500 emails (supports newlines, commas, semicolons, tabs, and spaces).
   - **CSV / TXT Upload Tab**: Drag and drop any spreadsheet or text file. DeliverIQ automatically detects the email column.
-- **One-Click Sample Data**: Pre-loads 5 diverse test emails representing all classification scenarios (valid Gmail, university domain, syntax error, fake domain, disposable burner).
+- **One-Click Sample Data**: Pre-loads diverse test emails representing all classification scenarios (valid Gmail, corporate address, syntax error, non-existent domain, disposable burner).
+- **Dark & Light Dual Theme Engine**: Seamless toggle between sleek dark mode and high-contrast light mode, persisted across sessions.
 - **Real-Time Progress Bar**: Asynchronous batch worker pool updates progress and elapsed time dynamically.
 - **KPI Summary Cards**: Live counters for Total Checked, Likely Deliverable, Likely to Bounce, Unknown, and Average Deliverability Score.
 - **Interactive Results Table**:
   - Filter by status (`All`, `Deliverable`, `Bounce`, `Unknown`).
   - Search by domain or username in real time.
-- **Deep Diagnostic Inspector Modal**: Click on any row to inspect underlying DNS records, MX priority servers, SPF, DMARC, and transcript logs.
+- **Deep Diagnostic Inspector Modal**: Click on any row or the **Inspect** button to review underlying DNS records, MX priority servers, SPF, DMARC, and complete 5-gate pipeline transcripts.
 - **One-Click CSV Export**: Download verified results with complete diagnostic columns for CRM/marketing use.
 
 ---
@@ -342,8 +350,8 @@ DeliverIQ features a modern, responsive web interface built for speed and clarit
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/<your-username>/deliveriq.git
-   cd deliveriq
+   git clone https://github.com/Manoj-Sanagapalli20/DeliverIQ.git
+   cd DeliverIQ
    ```
 
 2. **Install dependencies:**
@@ -351,43 +359,30 @@ DeliverIQ features a modern, responsive web interface built for speed and clarit
    npm install
    ```
 
-3. **Start the application:**
+3. **Configure Environment Variables (Optional):**
+   Copy `.env.example` to `.env`:
    ```bash
-   npm start
+   cp .env.example .env
+   ```
+   Add your optional Abstract API key:
+   ```env
+   PORT=3000
+   ABSTRACT_API_KEY=your_key_here
    ```
 
-4. **Open in browser:**
+4. **Start the application:**
+   ```bash
+   npm start
+   # Or run with auto-reload:
+   npm run dev
+   ```
+
+5. **Open in browser:**
    Navigate to [http://localhost:3000](http://localhost:3000).
 
 ---
 
-## 9. Deployment Guide (Render / Railway)
-
-DeliverIQ is pre-configured for zero-friction deployment to free hosting platforms such as **Render**.
-
-### Deploying to Render in 4 Steps:
-
-1. **Push your code to GitHub**:
-   Ensure all files are committed and pushed to your GitHub repository.
-
-2. **Create a New Web Service on Render**:
-   - Log in to [Render Dashboard](https://dashboard.render.com/).
-   - Click **New +** $\rightarrow$ **Web Service**.
-   - Select your GitHub repository.
-
-3. **Configure Service Settings**:
-   - **Name**: `deliveriq`
-   - **Environment**: `Node`
-   - **Build Command**: `npm install`
-   - **Start Command**: `node server.js`
-   - **Plan**: `Free`
-
-4. **Click Deploy Web Service**:
-   Render will build and deploy the application, giving you a live public URL (e.g., `https://deliveriq.onrender.com`).
-
----
-
-## 10. API Reference
+## 9. API Reference
 
 DeliverIQ exposes clean REST endpoints for programmatic verification:
 
@@ -410,12 +405,4 @@ DeliverIQ exposes clean REST endpoints for programmatic verification:
 
 ---
 
-## 📄 Submission Details
-- **Project Name**: DeliverIQ
-- **Live Deployed Link**: *(Insert your Render public URL here)*
-- **GitHub Repository**: *(Insert your GitHub repository URL here)*
-- **Author / Developer**: **Manoj Sanagapalli**
-
----
-
-*Engineered with precision for secure, compliant, and transparent email deliverability analysis.*
+*Designed & Built with ❤️ by **Manoj Sanagapalli** for secure, compliant, and transparent email deliverability analysis.*

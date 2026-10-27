@@ -58,10 +58,39 @@ document.addEventListener('DOMContentLoaded', () => {
   const emptyStateRow = document.getElementById('emptyStateRow');
   const tableResultsCount = document.getElementById('tableResultsCount');
   
-  // Modal Elements
+  // Modal Inspector Elements
   const inspectorModal = document.getElementById('inspectorModal');
   const closeModalBtn = document.getElementById('closeModalBtn');
   const modalDoneBtn = document.getElementById('modalDoneBtn');
+  const modalEmail = document.getElementById('modalEmail');
+  const modalStatusBadge = document.getElementById('modalStatusBadge');
+  const modalReason = document.getElementById('modalReason');
+  const modalSyntax = document.getElementById('modalSyntax');
+  const modalDisposable = document.getElementById('modalDisposable');
+  const modalScore = document.getElementById('modalScore');
+  const modalCatchAll = document.getElementById('modalCatchAll');
+  const modalSpf = document.getElementById('modalSpf');
+  const modalDmarc = document.getElementById('modalDmarc');
+  const modalMxList = document.getElementById('modalMxList');
+  const modalTranscript = document.getElementById('modalTranscript');
+
+  // Export Modal Elements
+  const exportModal = document.getElementById('exportModal');
+  const closeExportModalBtn = document.getElementById('closeExportModalBtn');
+  const cancelExportBtn = document.getElementById('cancelExportBtn');
+  const confirmDownloadCsvBtn = document.getElementById('confirmDownloadCsvBtn');
+  const copyCsvBtn = document.getElementById('copyCsvBtn');
+  const exportTotalCount = document.getElementById('exportTotalCount');
+  const exportDeliverableCount = document.getElementById('exportDeliverableCount');
+  const exportBounceCount = document.getElementById('exportBounceCount');
+  const exportUnknownCount = document.getElementById('exportUnknownCount');
+  const exportCsvPreview = document.getElementById('exportCsvPreview');
+  const exportTableContainer = document.getElementById('exportTableContainer');
+  const exportTablePreviewBody = document.getElementById('exportTablePreviewBody');
+  const exportViewTableBtn = document.getElementById('exportViewTableBtn');
+  const exportViewRawBtn = document.getElementById('exportViewRawBtn');
+
+  let currentExportCsvString = '';
   
   // Theme Toggle Elements
   const themeToggleBtn = document.getElementById('themeToggleBtn');
@@ -91,16 +120,6 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   initTheme();
-  const modalEmail = document.getElementById('modalEmail');
-  const modalStatusBadge = document.getElementById('modalStatusBadge');
-  const modalSyntax = document.getElementById('modalSyntax');
-  const modalDisposable = document.getElementById('modalDisposable');
-  const modalScore = document.getElementById('modalScore');
-  const modalCatchAll = document.getElementById('modalCatchAll');
-  const modalSpf = document.getElementById('modalSpf');
-  const modalDmarc = document.getElementById('modalDmarc');
-  const modalMxList = document.getElementById('modalMxList');
-  const modalTranscript = document.getElementById('modalTranscript');
 
   // State
   let currentActiveTab = 'PASTE'; // 'PASTE' | 'UPLOAD'
@@ -496,16 +515,16 @@ document.addEventListener('DOMContentLoaded', () => {
       const score = typeof r.score === 'number' ? r.score : 50;
 
       tr.innerHTML = `
-        <td style="color: var(--text-dim); font-family: var(--font-mono); font-size: 0.78rem;">${idx + 1}</td>
-        <td>
-          <span class="email-display">${escapeHtml(r.email)}</span>
+        <td class="col-num">${idx + 1}</td>
+        <td class="col-email">
+          <span class="email-display" title="${escapeHtml(r.email)}">${escapeHtml(r.email)}</span>
         </td>
-        <td>
+        <td class="col-status">
           <span class="status-badge ${statusClass}">
             ${statusIcon} ${r.status}
           </span>
         </td>
-        <td>
+        <td class="col-score">
           <div class="score-cell">
             <div class="score-bar-bg">
               <div class="score-bar-fill ${scoreClass}" style="width: ${score}%"></div>
@@ -513,14 +532,14 @@ document.addEventListener('DOMContentLoaded', () => {
             <span class="score-text">${score}%</span>
           </div>
         </td>
-        <td style="font-family: var(--font-mono); font-size: 0.78rem; color: #a5b4fc;">
-          ${escapeHtml(primaryMx)}
+        <td class="col-mx">
+          <div class="mx-cell" title="${escapeHtml(primaryMx)}">${escapeHtml(primaryMx)}</div>
         </td>
-        <td>
+        <td class="col-reason">
           <div class="reason-text">${escapeHtml(r.reason || 'Evaluation complete')}</div>
         </td>
-        <td style="text-align: right;">
-          <button class="btn btn-secondary btn-xs inspect-btn" data-email="${escapeHtml(r.email)}" type="button">
+        <td class="col-action">
+          <button class="inspect-btn" data-email="${escapeHtml(r.email)}" type="button">
             🔍 Inspect
           </button>
         </td>
@@ -576,6 +595,21 @@ document.addEventListener('DOMContentLoaded', () => {
     modalSpf.textContent = record.spf ? '✅ Configured (Protected)' : '⚠️ Not Detected';
     modalDmarc.textContent = record.dmarc ? '✅ Configured (Protected)' : '⚠️ Not Detected';
 
+    // Diagnostic Assessment Reason
+    if (modalReason) {
+      modalReason.textContent = record.reason || 'Verification evaluation completed.';
+      modalReason.className = 'diagnostic-reason-callout';
+      const rLower = (record.reason || '').toLowerCase();
+      const sLower = (record.status || '').toLowerCase();
+      if (rLower.includes('blocked') || rLower.includes('restriction') || rLower.includes('timed out') || rLower.includes('catch-all') || sLower.includes('unknown')) {
+        modalReason.classList.add('reason-blocked');
+      } else if (sLower.includes('bounce') || rLower.includes('bounce') || rLower.includes('not exist') || rLower.includes('rejected')) {
+        modalReason.classList.add('reason-bounce');
+      } else if (sLower.includes('deliver') || rLower.includes('active') || rLower.includes('exists')) {
+        modalReason.classList.add('reason-deliverable');
+      }
+    }
+
     // MX Records
     modalMxList.innerHTML = '';
     if (record.mxRecords && record.mxRecords.length > 0) {
@@ -608,18 +642,17 @@ document.addEventListener('DOMContentLoaded', () => {
   inspectorModal.addEventListener('click', (e) => {
     if (e.target === inspectorModal) closeModal();
   });
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && !inspectorModal.classList.contains('hidden')) {
-      closeModal();
-    }
-  });
 
-  // --- Export to CSV ---
-  exportCsvBtn.addEventListener('click', () => {
+  // --- Export to CSV Flow (Preview First, Then Download) ---
+  function openExportModal() {
     if (verifiedResults.length === 0) return;
 
     const headers = ['Email', 'Status', 'Deliverability Score (%)', 'Primary Reason', 'Primary MX Host', 'SPF Authenticated', 'DMARC Configured', 'Disposable Domain', 'Timestamp'];
     const rows = [headers.join(',')];
+
+    let deliverableCount = 0;
+    let bounceCount = 0;
+    let unknownCount = 0;
 
     for (let r of verifiedResults) {
       const primaryMx = (r.mxRecords && r.mxRecords.length > 0) ? r.mxRecords[0] : 'None';
@@ -635,20 +668,144 @@ document.addEventListener('DOMContentLoaded', () => {
         `"${new Date().toISOString()}"`
       ];
       rows.push(row.join(','));
+
+      const st = (r.status || '').toLowerCase();
+      if (st.includes('deliver')) deliverableCount++;
+      else if (st.includes('bounce')) bounceCount++;
+      else unknownCount++;
     }
 
-    const csvContent = 'data:text/csv;charset=utf-8,' + encodeURIComponent(rows.join('\n'));
+    currentExportCsvString = rows.join('\r\n');
+
+    // Update stats in modal
+    if (exportTotalCount) exportTotalCount.textContent = verifiedResults.length;
+    if (exportDeliverableCount) exportDeliverableCount.textContent = deliverableCount;
+    if (exportBounceCount) exportBounceCount.textContent = bounceCount;
+    if (exportUnknownCount) exportUnknownCount.textContent = unknownCount;
+
+    // Populate Spreadsheet Table Preview
+    if (exportTablePreviewBody) {
+      exportTablePreviewBody.innerHTML = '';
+      const previewRecords = verifiedResults.slice(0, 10);
+      previewRecords.forEach((r, idx) => {
+        const tr = document.createElement('tr');
+        const primaryMx = (r.mxRecords && r.mxRecords.length > 0) ? r.mxRecords[0] : 'None';
+        const st = (r.status || '').toLowerCase();
+        let statusBadge = '<span class="status-badge status-unknown">🟡 Unknown</span>';
+        if (st.includes('deliver')) {
+          statusBadge = '<span class="status-badge status-deliverable">🟢 Deliverable</span>';
+        } else if (st.includes('bounce')) {
+          statusBadge = '<span class="status-badge status-bounce">🔴 Bounce</span>';
+        }
+
+        tr.innerHTML = `
+          <td class="cell-idx">${idx + 1}</td>
+          <td class="cell-email" title="${escapeHtml(r.email)}">${escapeHtml(r.email)}</td>
+          <td>${statusBadge}</td>
+          <td><strong>${r.score || 0}%</strong></td>
+          <td class="cell-reason" title="${escapeHtml(r.reason || '')}">${escapeHtml(r.reason || 'N/A')}</td>
+          <td class="cell-mx" title="${escapeHtml(primaryMx)}">${escapeHtml(primaryMx)}</td>
+          <td><span class="cell-bool ${r.spf ? 'true-val' : 'false-val'}">${r.spf ? 'TRUE' : 'FALSE'}</span></td>
+          <td><span class="cell-bool ${r.dmarc ? 'true-val' : 'false-val'}">${r.dmarc ? 'TRUE' : 'FALSE'}</span></td>
+          <td><span class="cell-bool ${r.disposable ? 'false-val' : 'true-val'}">${r.disposable ? 'TRUE' : 'FALSE'}</span></td>
+          <td class="cell-idx">${new Date().toISOString().slice(0, 19).replace('T', ' ')}</td>
+        `;
+        exportTablePreviewBody.appendChild(tr);
+      });
+    }
+
+    // Populate Raw CSV Preview
+    if (exportCsvPreview) {
+      const previewRows = rows.slice(0, 11).join('\n');
+      const remaining = rows.length - 11;
+      exportCsvPreview.textContent = remaining > 0 
+        ? `${previewRows}\n\n... and ${remaining} more records (ready in full download)`
+        : previewRows;
+    }
+
+    // Default to Table Spreadsheet View
+    if (exportTableContainer && exportCsvPreview) {
+      exportTableContainer.classList.remove('hidden');
+      exportCsvPreview.classList.add('hidden');
+      if (exportViewTableBtn) exportViewTableBtn.classList.add('active');
+      if (exportViewRawBtn) exportViewRawBtn.classList.remove('active');
+    }
+
+    exportModal.classList.remove('hidden');
+  }
+
+  function closeExportModal() {
+    exportModal.classList.add('hidden');
+  }
+
+  // View Switchers: Spreadsheet Table vs Raw CSV
+  if (exportViewTableBtn && exportViewRawBtn) {
+    exportViewTableBtn.addEventListener('click', () => {
+      exportViewTableBtn.classList.add('active');
+      exportViewRawBtn.classList.remove('active');
+      if (exportTableContainer) exportTableContainer.classList.remove('hidden');
+      if (exportCsvPreview) exportCsvPreview.classList.add('hidden');
+    });
+
+    exportViewRawBtn.addEventListener('click', () => {
+      exportViewRawBtn.classList.add('active');
+      exportViewTableBtn.classList.remove('active');
+      if (exportCsvPreview) exportCsvPreview.classList.remove('hidden');
+      if (exportTableContainer) exportTableContainer.classList.add('hidden');
+    });
+  }
+
+  exportCsvBtn.addEventListener('click', openExportModal);
+  closeExportModalBtn.addEventListener('click', closeExportModal);
+  cancelExportBtn.addEventListener('click', closeExportModal);
+
+  exportModal.addEventListener('click', (e) => {
+    if (e.target === exportModal) closeExportModal();
+  });
+
+  // Copy CSV Content to Clipboard
+  copyCsvBtn.addEventListener('click', () => {
+    if (!currentExportCsvString) return;
+    navigator.clipboard.writeText(currentExportCsvString).then(() => {
+      const origHtml = copyCsvBtn.innerHTML;
+      copyCsvBtn.innerHTML = '✅ Copied to Clipboard!';
+      copyCsvBtn.style.color = '#10b981';
+      setTimeout(() => {
+        copyCsvBtn.innerHTML = origHtml;
+        copyCsvBtn.style.color = '';
+      }, 2000);
+    }).catch(() => {
+      copyCsvBtn.textContent = '❌ Copy Failed';
+    });
+  });
+
+  // Confirm Download Button -> Triggers actual .csv download
+  confirmDownloadCsvBtn.addEventListener('click', () => {
+    if (!currentExportCsvString) return;
+
+    const blob = new Blob([currentExportCsvString], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
-    link.setAttribute('href', csvContent);
+    link.setAttribute('href', url);
     link.setAttribute('download', `deliveriq-verified-list-${Date.now()}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+
+    closeExportModal();
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      if (!inspectorModal.classList.contains('hidden')) closeModal();
+      if (!exportModal.classList.contains('hidden')) closeExportModal();
+    }
   });
 
   function cleanCsv(str) {
     if (!str) return '';
-    return str.toString().replace(/"/g, '""');
+    return str.toString().replace(/"/g, '""').replace(/[\r\n]+/g, ' ').trim();
   }
 
   function escapeHtml(str) {
