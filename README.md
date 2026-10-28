@@ -27,7 +27,7 @@ Unlike basic tools that merely perform domain-level DNS checks, DeliverIQ implem
 | **Backend API Base** | [https://deliveriq-8xoa.onrender.com/api](https://deliveriq-8xoa.onrender.com/api) |
 | **Health Check Endpoint** | [https://deliveriq-8xoa.onrender.com/api/health](https://deliveriq-8xoa.onrender.com/api/health) |
 | **GitHub Source Repository** | [https://github.com/Manoj-Sanagapalli20/DeliverIQ](https://github.com/Manoj-Sanagapalli20/DeliverIQ) |
-| **Lead Developer** | **Manoj Sanagapalli** |
+| **Developer** | **Manoj Sanagapalli** |
 
 ---
 
